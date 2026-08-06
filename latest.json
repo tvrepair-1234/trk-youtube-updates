@@ -1,0 +1,9 @@
+{
+  "app": "TRK YouTube TV",
+  "versionCode": 27,
+  "versionName": "0.9.3",
+  "minAndroid": "4.4",
+  "apkUrl": "https://raw.githubusercontent.com/tvrepair-1234/trk-youtube-updates/main/TRK_YouTube_TV_latest.apk",
+  "sha256": "71ff32a3f3b497ed4dc170138d4b74a05c3c0ba367f6c3b97e0b05b325598ee7",
+  "notes": "Public updater reliability fix. Keeps the proven YouTube playback path, TV-friendly recovery, and TRK contact features."
+}
