@@ -1,9 +1,9 @@
 {
   "app": "TRK YouTube TV",
-  "versionCode": 28,
-  "versionName": "0.9.4",
+  "versionCode": 30,
+  "versionName": "0.9.6",
   "minAndroid": "4.4",
   "apkUrl": "https://raw.githubusercontent.com/tvrepair-1234/trk-youtube-updates/main/TRK_YouTube_TV_latest.apk",
-  "sha256": "ce0d91c3650a3f8214a1cb7ec4d6196bd4f01592cd32af36f3b954ef45ad70fa",
-  "notes": "Public GitHub updater connected while preserving the proven YouTube watch-page player."
+  "sha256": "619180def72b0adc692abe808eba0f08687b924546b4a4adea0fec32c6cf0363",
+  "notes": "Full updater test release. Preserves the proven YouTube player and v0.9.5 updater networking fix."
 }
