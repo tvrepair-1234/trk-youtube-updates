@@ -1,0 +1,62 @@
+name: Publish TRK YouTube TV v0.9.4
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v094.yml']
+permissions: {contents: write}
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download signed private chunks and publish verified APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work chunks
+          mkdir -p chunks
+          urls=(
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-00?token=BRWP5UJLVPLVHNHMIMN6ZMLKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-01?token=BRWP5UKF4V7QOFVQPH5FAOTKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-02?token=BRWP5UOPXE3Y2SUTDAJND4LKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-03?token=BRWP5UNOKOAFKOPT3PGT3OLKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-04?token=BRWP5UKKTZRP36OKK6FJGNDKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-05?token=BRWP5UIYYPZVVRYIMBDYIJDKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-06?token=BRWP5UNFYTNIQPDCCRVIV6LKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-07?token=BRWP5UKC6TCA3LDKFXQNK4DKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-08?token=BRWP5UIASMCXB7JZZTFOXMDKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-09?token=BRWP5UL6OW4KOLXFVSD2WQ3KOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-10?token=BRWP5UNAF6KVBNR7DUI4XUDKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-11?token=BRWP5ULHKBOKJTHRJIM6FSDKOVIM7AA'
+            'https://raw.githubusercontent.com/tvrepair-1234/tvrepairktm/trk-youtube-tv-v070-ui/export/v094/chunks/part-12?token=BRWP5UOPRLPDARTB2CXRGALKOVIM7AA'
+          )
+          for i in $(seq -w 0 12); do
+            curl -fL --retry 3 --retry-delay 2 "${urls[10#$i]}" -o "chunks/part-$i"
+          done
+          cat chunks/part-* | base64 -d > TRK_YouTube_TV_v0.9.4_GITHUB_UPDATER.apk
+          echo 'ce0d91c3650a3f8214a1cb7ec4d6196bd4f01592cd32af36f3b954ef45ad70fa  TRK_YouTube_TV_v0.9.4_GITHUB_UPDATER.apk' | sha256sum -c -
+          test -s TRK_YouTube_TV_v0.9.4_GITHUB_UPDATER.apk
+          unzip -t TRK_YouTube_TV_v0.9.4_GITHUB_UPDATER.apk >/dev/null
+          git clone --quiet --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/tvrepair-1234/trk-youtube-updates.git" work
+          cp TRK_YouTube_TV_v0.9.4_GITHUB_UPDATER.apk work/TRK_YouTube_TV_latest.apk
+          cat > work/latest.json <<'EOF'
+          {
+            "app": "TRK YouTube TV",
+            "versionCode": 28,
+            "versionName": "0.9.4",
+            "minAndroid": "4.4",
+            "apkUrl": "https://raw.githubusercontent.com/tvrepair-1234/trk-youtube-updates/main/TRK_YouTube_TV_latest.apk",
+            "sha256": "ce0d91c3650a3f8214a1cb7ec4d6196bd4f01592cd32af36f3b954ef45ad70fa",
+            "notes": "Public GitHub updater connected while preserving the proven YouTube watch-page player."
+          }
+          EOF
+          cd work
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TRK_YouTube_TV_latest.apk latest.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Publish verified TRK YouTube TV v0.9.4 update'
+          git push origin main
