@@ -1,0 +1,49 @@
+name: Publish TRK YouTube TV v0.9.8
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v098.yml']
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Retrieve verified v0.9.8 artifact and publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT_URL='https://sdmntprwestus.oaiusercontent.com/files/00000000-b510-8230-9a6a-8dea26e7e8bc/raw?se=2026-08-08T04%3A13%3A47Z&sp=r&sv=2026-02-06&sr=b&scid=798e7854-e04d-5020-bc79-58ce70635bc8&skoid=d5627e4c-566b-4761-a954-54993b0ed17b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-08-08T01%3A51%3A45Z&ske=2026-08-09T01%3A51%3A45Z&sks=b&skv=2026-02-06&sig=t8ECkH/xsczVkPk/wEt13rOTKoYLCMgFi6Kltx9Q5aM%3D'
+          EXPECTED='4c87e44753f10b7aef52bfe4dcda417547e761529dc6a0576341160f3afa7684'
+          curl -fL --retry 4 --retry-delay 2 "$ARTIFACT_URL" -o v098.zip
+          rm -rf extracted work
+          mkdir extracted
+          unzip -q v098.zip -d extracted
+          APK='extracted/TRK_YouTube_TV_v0.9.8_UPDATER_TEST.apk'
+          test -s "$APK"
+          echo "$EXPECTED  $APK" | sha256sum -c -
+          unzip -t "$APK" >/dev/null
+          git clone --quiet --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/tvrepair-1234/trk-youtube-updates.git" work
+          cp "$APK" work/TRK_YouTube_TV_latest.apk
+          cat > work/latest.json <<'EOF'
+          {
+            "app": "TRK YouTube TV",
+            "versionCode": 32,
+            "versionName": "0.9.8",
+            "minAndroid": "4.4",
+            "apkUrl": "https://raw.githubusercontent.com/tvrepair-1234/trk-youtube-updates/main/TRK_YouTube_TV_latest.apk",
+            "sha256": "4c87e44753f10b7aef52bfe4dcda417547e761529dc6a0576341160f3afa7684",
+            "notes": "Version-only test of the v0.9.7 in-app updater. YouTube player/UI unchanged."
+          }
+          EOF
+          cd work
+          echo "$EXPECTED  TRK_YouTube_TV_latest.apk" | sha256sum -c -
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TRK_YouTube_TV_latest.apk latest.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Publish verified TRK YouTube TV v0.9.8 update'
+          git push origin main
