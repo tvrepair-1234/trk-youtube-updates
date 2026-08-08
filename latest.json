@@ -1,9 +1,9 @@
 {
   "app": "TRK YouTube TV",
-  "versionCode": 33,
-  "versionName": "0.9.9",
+  "versionCode": 34,
+  "versionName": "1.0.0",
   "minAndroid": "4.4",
   "apkUrl": "https://raw.githubusercontent.com/tvrepair-1234/trk-youtube-updates/main/TRK_YouTube_TV_latest.apk",
-  "sha256": "6feb507e29a1c86ea70056f010538f07627ba87772288fab5026c53cc3787c47",
-  "notes": "Restores the YouTube API build configuration while preserving the proven player/UI and in-app updater."
+  "sha256": "46fa759e9714a912ff14c38e4bba9cdfd22419e0ae894c702b4a6a170d28025e",
+  "notes": "Production release build with stable signing and account-free TRK UI. Proven YouTube player, remote behavior and in-app updater preserved."
 }
